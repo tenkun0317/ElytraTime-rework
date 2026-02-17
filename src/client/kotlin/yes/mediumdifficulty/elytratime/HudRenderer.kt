@@ -1,0 +1,58 @@
+package yes.mediumdifficulty.elytratime
+
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.RenderTickCounter
+import net.minecraft.text.Text
+
+object HudRenderer : HudRenderCallback {
+    override fun onHudRender(drawContext: DrawContext, tickCounter: RenderTickCounter) {
+        val client = MinecraftClient.getInstance()
+        if (client.options.hudHidden || !ElytraTime.config.hudEnabled) return
+
+        val player = client.player ?: return
+        val world = client.world ?: return
+        val elytra = Util.findElytra(player)
+
+        val text: String
+        var color: Int
+
+        if (elytra != null) {
+            text = Util.formatTimePercent(
+                elytra,
+                ClientTextUtils.getTooltipFormat(),
+                ClientTextUtils.getTimeFormat(),
+                world
+            )
+            val percent = (Calculator.fractionRemaining(elytra, world) * 100.0).toInt()
+            color = Util.getColor(percent)
+
+            if (Util.shouldWarn(elytra, world)) {
+                val alpha = ((Math.sin(world.time.toDouble() / 5.0) + 1.0) / 2.0 * 155.0 + 100.0).toInt()
+                color = (alpha shl 24) or (color and 0x00FFFFFF)
+            }
+        } else if (client.currentScreen?.title?.content == Text.translatable("title.elytratime.config").content) {
+            // Preview mode when config screen is open
+            text = "10m 00s (100%)"
+            color = Util.getColor(100)
+        } else {
+            return
+        }
+
+        val scale = ElytraTime.config.hudScale
+        val matrices = drawContext.getMatrices()
+        matrices.pushMatrix()
+        matrices.scale(scale, scale)
+
+        drawContext.drawTextWithShadow(
+            client.textRenderer,
+            Text.literal(text),
+            (ElytraTime.config.hudX / scale).toInt(),
+            (ElytraTime.config.hudY / scale).toInt(),
+            color
+        )
+
+        matrices.popMatrix()
+    }
+}

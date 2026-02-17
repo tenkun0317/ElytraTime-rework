@@ -2,15 +2,15 @@
 	"schemaVersion": 1,
 	"id": "elytratime",
 	"version": "${version}",
-	"name": "Elytra Time",
+	"name": "Elytra Time Rework",
 	"description": "Calculates and displays the flying time left on an elytra, based on its durability",
 	"authors": [
 		"MediumDifficulty"
 	],
 	"contact": {
-		"sources": "https://github.com/MediumDifficulty/ElytraTime",
-		"issues": "https://github.com/MediumDifficulty/ElytraTime/issues",
-		"homepage": "https://www.modrinth.com/mod/elytratime"
+		"sources": "https://github.com/tenkun0317/ElytraTime-rework",
+		"issues": "https://github.com/tenkun0317/ElytraTime-rework/issues",
+		"homepage": "https://www.modrinth.com/mod/elytratime-rework"
 	},
 	"license": "GNU LGPL v3",
 	"icon": "assets/elytratime/icon.png",
@@ -27,10 +27,11 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.15.11",
-		"minecraft": ">=1.21.0",
+		"fabricloader": ">=0.18.4",
+		"fabric-language-kotlin": ">=1.13.9",
+		"minecraft": ">=1.21.11",
 		"java": ">=21",
-		"fabric-api": ">=0.100.7",
-		"cloth-config": ">=15.0.0"
+		"fabric-api": ">=0.141.3",
+		"cloth-config": ">=21.11.0"
 	}
 }
