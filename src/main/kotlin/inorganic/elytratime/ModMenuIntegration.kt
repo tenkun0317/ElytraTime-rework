@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi

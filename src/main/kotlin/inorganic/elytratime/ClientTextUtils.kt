@@ -1,10 +1,17 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import net.minecraft.util.Language
 
 object ClientTextUtils {
     fun getTooltipFormat(): String =
         ElytraTime.config.tooltipFormat.takeIf { it.isNotEmpty() } ?: getValueFromKey("value.elytratime.tooltip_format")
+
+    fun getHudFormat(): String {
+        if (ElytraTime.config.useSameFormatForHudAndTooltip) {
+            return getTooltipFormat()
+        }
+        return ElytraTime.config.hudFormat.takeIf { it.isNotEmpty() } ?: getValueFromKey("value.elytratime.tooltip_format")
+    }
 
     fun getTimeFormat(): String =
         ElytraTime.config.timeFormat.takeIf { it.isNotEmpty() } ?: getValueFromKey("value.elytratime.time_format")

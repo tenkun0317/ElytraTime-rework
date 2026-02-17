@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.MinecraftClient
@@ -21,7 +21,7 @@ object HudRenderer : HudRenderCallback {
         if (elytra != null) {
             text = Util.formatTimePercent(
                 elytra,
-                ClientTextUtils.getTooltipFormat(),
+                ClientTextUtils.getHudFormat(),
                 ClientTextUtils.getTimeFormat(),
                 world
             )
@@ -45,10 +45,17 @@ object HudRenderer : HudRenderCallback {
         matrices.pushMatrix()
         matrices.scale(scale, scale)
 
+        val textWidth = client.textRenderer.getWidth(text)
+        val x = when (ElytraTime.config.hudAlignment) {
+            Config.Alignment.LEFT -> (ElytraTime.config.hudX / scale).toInt()
+            Config.Alignment.CENTER -> (ElytraTime.config.hudX / scale - textWidth / 2).toInt()
+            Config.Alignment.RIGHT -> (ElytraTime.config.hudX / scale - textWidth).toInt()
+        }
+
         drawContext.drawTextWithShadow(
             client.textRenderer,
             Text.literal(text),
-            (ElytraTime.config.hudX / scale).toInt(),
+            x,
             (ElytraTime.config.hudY / scale).toInt(),
             color
         )

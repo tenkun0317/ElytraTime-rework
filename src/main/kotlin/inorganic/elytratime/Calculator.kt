@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments

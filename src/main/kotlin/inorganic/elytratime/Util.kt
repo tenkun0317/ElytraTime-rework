@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.player.PlayerEntity
@@ -17,11 +17,29 @@ object Util {
     }
 
     fun formatTime(time: Int, format: String): String {
+        if (ElytraTime.config.totalSecondsOnly) {
+            val secondsStr = if (ElytraTime.config.padSeconds) time.toString().padStart(2, '0') else time.toString()
+            return format
+                .replace("[M]", "0")
+                .replace("[S]", secondsStr)
+        }
+
         val minutes = time / 60
         val seconds = time % 60
+        val secondsStr = if (ElytraTime.config.padSeconds) seconds.toString().padStart(2, '0') else seconds.toString()
+
+        if (minutes == 0 && format.contains("[M]") && format.contains("[S]")) {
+            val mIndex = format.indexOf("[M]")
+            val sIndex = format.indexOf("[S]")
+            if (mIndex < sIndex) {
+                return format.removeRange(mIndex, sIndex)
+                    .replace("[S]", secondsStr)
+            }
+        }
+
         return format
             .replace("[M]", minutes.toString())
-            .replace("[S]", seconds.toString().padStart(2, '0'))
+            .replace("[S]", secondsStr)
     }
 
     fun shouldWarn(item: ItemStack, world: World): Boolean {

@@ -5,7 +5,7 @@
 	"name": "Elytra Time Rework",
 	"description": "Calculates and displays the flying time left on an elytra, based on its durability",
 	"authors": [
-		"MediumDifficulty"
+		"inorganic"
 	],
 	"contact": {
 		"sources": "https://github.com/tenkun0317/ElytraTime-rework",
@@ -17,13 +17,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"yes.mediumdifficulty.elytratime.ElytraTime"
-		],
-		"client": [
-			"yes.mediumdifficulty.elytratime.ElytraTimeClient"
+			"inorganic.elytratime.ElytraTime"
 		],
 		"modmenu": [
-			"yes.mediumdifficulty.elytratime.ModMenuIntegration"
+			"inorganic.elytratime.ModMenuIntegration"
 		]
 	},
 	"depends": {

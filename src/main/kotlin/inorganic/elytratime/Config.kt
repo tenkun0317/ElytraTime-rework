@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import com.google.gson.GsonBuilder
 import net.fabricmc.loader.api.FabricLoader
@@ -11,10 +11,20 @@ class Config {
         TITLE
     }
 
+    enum class Alignment {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+
     @JvmField var tooltipEnabled = true
     @JvmField var tooltipFormat = ""
+    @JvmField var useSameFormatForHudAndTooltip = true
+    @JvmField var hudFormat = ""
     @JvmField var timeFormat = ""
     @JvmField var timeReportFormat = ""
+    @JvmField var padSeconds = true
+    @JvmField var totalSecondsOnly = false
     @JvmField var alertThresholdSeconds = 60
     @JvmField var alertThresholdEnabled = true
     @JvmField var alertType = AlertType.ACTION_BAR
@@ -25,6 +35,7 @@ class Config {
     @JvmField var redColor = 0xFFFF5555.toInt()
     @JvmField var alertColor = 0xFFFF5555.toInt()
     @JvmField var hudEnabled = true
+    @JvmField var hudAlignment = Alignment.LEFT
     @JvmField var hudScale = 1.0f
     @JvmField var hudX = 5
     @JvmField var hudY = 5

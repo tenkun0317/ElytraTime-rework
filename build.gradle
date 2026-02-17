@@ -5,7 +5,7 @@ plugins {
 }
 
 version = project.mod_version
-group = project.maven_group
+group = "inorganic.elytratime"
 
 base {
 	archivesName = project.archives_base_name
@@ -26,12 +26,9 @@ repositories {
 }
 
 loom {
-    splitEnvironmentSourceSets()
-
 	mods {
 		"elytratime" {
 			sourceSet sourceSets.main
-			sourceSet sourceSets.client
 		}
 	}
 

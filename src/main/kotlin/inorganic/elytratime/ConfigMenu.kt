@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import me.shedaniel.clothconfig2.api.Requirement
@@ -29,6 +29,20 @@ object ConfigMenu {
             .setRequirement(Requirement.isTrue(enableTooltipEntry))
             .build())
 
+        val useSameFormatEntry = eb.startBooleanToggle(Text.translatable("option.elytratime.use_same_format"), ElytraTime.config.useSameFormatForHudAndTooltip)
+            .setSaveConsumer { ElytraTime.config.useSameFormatForHudAndTooltip = it }
+            .setTooltip(Text.translatable("tooltip.elytratime.use_same_format"))
+            .setDefaultValue(true)
+            .build()
+        general.addEntry(useSameFormatEntry)
+
+        general.addEntry(eb.startStrField(Text.translatable("option.elytratime.hud_format"), ClientTextUtils.getHudFormat())
+            .setSaveConsumer { ElytraTime.config.hudFormat = it }
+            .setTooltip(Text.translatable("tooltip.elytratime.hud_format"))
+            .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.tooltip_format"))
+            .setRequirement(Requirement.isFalse(useSameFormatEntry))
+            .build())
+
         general.addEntry(eb.startStrField(Text.translatable("option.elytratime.time_format"), ClientTextUtils.getTimeFormat())
             .setSaveConsumer { ElytraTime.config.timeFormat = it }
             .setTooltip(Text.translatable("tooltip.elytratime.time_format"))
@@ -39,6 +53,18 @@ object ConfigMenu {
             .setSaveConsumer { ElytraTime.config.timeReportFormat = it }
             .setTooltip(Text.translatable("tooltip.elytratime.time_report_format"))
             .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.time_report_format"))
+            .build())
+
+        general.addEntry(eb.startBooleanToggle(Text.translatable("option.elytratime.pad_seconds"), ElytraTime.config.padSeconds)
+            .setSaveConsumer { ElytraTime.config.padSeconds = it }
+            .setTooltip(Text.translatable("tooltip.elytratime.pad_seconds"))
+            .setDefaultValue(true)
+            .build())
+
+        general.addEntry(eb.startBooleanToggle(Text.translatable("option.elytratime.total_seconds_only"), ElytraTime.config.totalSecondsOnly)
+            .setSaveConsumer { ElytraTime.config.totalSecondsOnly = it }
+            .setTooltip(Text.translatable("tooltip.elytratime.total_seconds_only"))
+            .setDefaultValue(false)
             .build())
 
         val enableAlertEntry = eb.startBooleanToggle(Text.translatable("option.elytratime.alert_enabled"), ElytraTime.config.alertThresholdEnabled)
@@ -107,6 +133,13 @@ object ConfigMenu {
             .setSaveConsumer { ElytraTime.config.hudEnabled = it }
             .setTooltip(Text.translatable("tooltip.elytratime.hud_enabled"))
             .setDefaultValue(true)
+            .build())
+
+        hud.addEntry(eb.startEnumSelector(Text.translatable("option.elytratime.hud_alignment"), Config.Alignment::class.java, ElytraTime.config.hudAlignment)
+            .setSaveConsumer { ElytraTime.config.hudAlignment = it }
+            .setTooltip(Text.translatable("tooltip.elytratime.hud_alignment"))
+            .setDefaultValue(Config.Alignment.LEFT)
+            .setEnumNameProvider { Text.translatable("option.elytratime.alignment." + it.name.lowercase()) }
             .build())
 
         hud.addEntry(eb.startFloatField(Text.translatable("option.elytratime.hud_scale"), ElytraTime.config.hudScale)

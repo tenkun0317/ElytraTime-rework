@@ -1,7 +1,7 @@
 {
 	"key.elytratime.show": "残り時間を表示",
 	"key.elytratime.config": "設定メニューを開く",
-	"category.elytratime.controls": "Elytra Time",
+	"key.category.elytratime.controls": "Elytra Time",
 	"message.elytratime.no_elytra": "エリトラを装備していません！",
 	"value.elytratime.tooltip_format": "残り時間: [TIME] ([%]%)",
 	"value.elytratime.time_format": "[M]分 [S]秒",
@@ -12,6 +12,8 @@
 	"category.elytratime.hud": "HUD",
 	"option.elytratime.tooltip_format": "ツールチップの形式",
 	"option.elytratime.enable_tooltip": "ツールチップを有効化",
+	"option.elytratime.use_same_format": "ツールチップと同じ形式をHUDに使用",
+	"option.elytratime.hud_format": "HUDの形式",
 	"option.elytratime.alert_enabled": "耐久度低下の警告を表示",
 	"option.elytratime.alert_threshold_seconds": "警告のしきい値 (秒)",
 	"option.elytratime.alert_type": "警告の種類",
@@ -26,7 +28,13 @@
 	"option.elytratime.red_threshold": "赤色に変わるしきい値 (%)",
 	"option.elytratime.time_format": "時間の形式",
 	"option.elytratime.time_report_format": "チャット報告の形式",
+	"option.elytratime.pad_seconds": "秒数をゼロ埋めする",
+	"option.elytratime.total_seconds_only": "常に秒数のみで表示する",
 	"option.elytratime.hud_enabled": "HUDを有効化",
+	"option.elytratime.hud_alignment": "HUDの配置",
+	"option.elytratime.alignment.left": "左揃え",
+	"option.elytratime.alignment.center": "中央揃え",
+	"option.elytratime.alignment.right": "右揃え",
 	"option.elytratime.hud_scale": "HUDのサイズ",
 	"option.elytratime.hud_x": "HUD X座標",
 	"option.elytratime.hud_y": "HUD Y座標",
@@ -36,6 +44,12 @@
 §l[TIME]§r: 残り時間
 §l[%]§r: 残りの耐久度（%）",
 	"tooltip.elytratime.enabled": "ツールチップの表示/非表示を切り替えます",
+	"tooltip.elytratime.use_same_format": "有効にすると、HUDでもツールチップと同じ表示形式を使用します",
+	"tooltip.elytratime.hud_format": "HUDの表示形式
+
+§n変数§r
+§l[TIME]§r: 残り時間
+§l[%]§r: 残りの耐久度（%）",
 	"tooltip.elytratime.alert_enabled": "耐久度が低くなった時に警告を表示するかどうかを設定します",
 	"tooltip.elytratime.alert_threshold_seconds": "残り時間がこの秒数を下回った時に警告を表示します",
 	"tooltip.elytratime.alert_type": "警告を表示する場所を設定します",
@@ -57,7 +71,10 @@
 §n変数§r
 §l[TIME]§r: 残り時間
 §l[%]§r: 残りの耐久度（%）",
+	"tooltip.elytratime.pad_seconds": "秒数をゼロで埋めるかどうか（例：05秒 vs 5秒）",
+	"tooltip.elytratime.total_seconds_only": "分に変換せず、すべての時間を秒数として表示します",
 	"tooltip.elytratime.hud_enabled": "画面上に残り時間を表示するかどうかを設定します",
+	"tooltip.elytratime.hud_alignment": "X座標に対するHUDテキストの水平方向の配置設定",
 	"tooltip.elytratime.hud_scale": "HUDの表示サイズを設定します",
 	"tooltip.elytratime.hud_x": "HUDの水平表示位置",
 	"tooltip.elytratime.hud_y": "HUDの垂直表示位置"

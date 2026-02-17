@@ -1,4 +1,4 @@
-package yes.mediumdifficulty.elytratime
+package inorganic.elytratime
 
 import net.fabricmc.api.ModInitializer
 import org.slf4j.Logger
