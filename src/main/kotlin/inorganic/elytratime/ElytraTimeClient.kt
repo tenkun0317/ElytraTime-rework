@@ -3,146 +3,135 @@ package inorganic.elytratime
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.option.KeyBinding
-import net.minecraft.client.util.InputUtil
-import net.minecraft.item.Items
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.Identifier
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
+
+
+import net.minecraft.client.Minecraft
+import net.minecraft.client.KeyMapping
+
+
+import com.mojang.blaze3d.platform.InputConstants
+import net.minecraft.world.item.Items
+import net.minecraft.network.chat.Component
+
+
 import org.lwjgl.glfw.GLFW
 
 class ElytraTimeClient : ClientModInitializer {
     override fun onInitializeClient() {
         registerEvents()
         registerKeybindings()
-        HudRenderCallback.EVENT.register(HudRenderer)
+        registerHud()
 
         ElytraTime.LOGGER.info("Initialised on client")
     }
 
     private fun registerKeybindings() {
-        val category = KeyBinding.Category(Identifier.of("elytratime", "controls"))
+        val category = KeyMapping.Category(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "key.categories.misc"))
 
-        val printTime = KeyBindingHelper.registerKeyBinding(
-            KeyBinding(
-                "key.elytratime.show",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_F4,
-                category
-            )
+        val printTime = KeyMapping(
+            "key.elytratime.show",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_F4,
+            category
         )
 
-        val openConfig = KeyBindingHelper.registerKeyBinding(
-            KeyBinding(
-                "key.elytratime.config",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_O,
-                category
-            )
+        val openConfig = KeyMapping(
+            "key.elytratime.config",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_O,
+            category
         )
 
         var alertCooldown = 0
         var hasWarnedThisFlight = false
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             val player = client.player ?: return@register
-            val world = client.world ?: return@register
+            val world = client.level ?: return@register
 
             if (alertCooldown > 0) alertCooldown--
             
-            if (!player.isGliding) {
+            if (!player.isFallFlying()) {
                 hasWarnedThisFlight = false
             }
 
-            if (player.isGliding && ElytraTime.config.alertThresholdEnabled) {
+            if (player.isFallFlying() && ElytraTime.config.alertThresholdEnabled) {
                 val elytra = Util.findElytra(player)
                 if (elytra != null && Util.shouldWarn(elytra, world)) {
                     val alertType = ElytraTime.config.alertType
                     val shouldWarn = when (alertType) {
                         Config.AlertType.CHAT -> !hasWarnedThisFlight
-                        else -> alertCooldown <= 0
+                        Config.AlertType.ACTION_BAR -> alertCooldown == 0
+                        Config.AlertType.TITLE -> alertCooldown == 0
                     }
 
                     if (shouldWarn) {
-                        val time = Util.formatTime(Calculator.timeRemaining(elytra, world), ClientTextUtils.getTimeFormat())
-                        val color = ElytraTime.config.alertColor
-                        
-                        val message = ClientTextUtils.getValueFromKey("message.elytratime.warning")
-                            .replace("§c", "") // Remove legacy codes if present
-                            .replace("[TIME]", time)
-                        val text = Text.literal(message).withColor(color)
-
+                        val message = Component.literal("WARNING: Elytra durability low!")
+                            .withColor(ElytraTime.config.alertColor)
                         when (alertType) {
-                            Config.AlertType.CHAT -> {
-                                player.sendMessage(text, false)
-                                hasWarnedThisFlight = true
-                            }
-                            Config.AlertType.ACTION_BAR -> {
-                                player.sendMessage(text, true)
-                                alertCooldown = 40 // Alert every 2 seconds
-                            }
-                            Config.AlertType.TITLE -> {
-                                client.inGameHud.setTitle(text)
-                                client.inGameHud.setSubtitle(Text.translatable("message.elytratime.warning_subtitle"))
-                                alertCooldown = 100 // Alert every 5 seconds for title
-                            }
+                            Config.AlertType.CHAT -> player.sendSystemMessage(message)
+                            Config.AlertType.ACTION_BAR -> client.gui.setOverlayMessage(message, true)
+                            Config.AlertType.TITLE -> client.gui.setTitle(message)
                         }
+                        alertCooldown = 60
+                        hasWarnedThisFlight = true
                     }
-                } else {
-                    // Reset if we are no longer in warning state (e.g. repaired or switched elytra)
-                    hasWarnedThisFlight = false
                 }
             }
 
-            if (printTime.wasPressed()) {
-                val found = Util.findElytra(player)
-
-                if (found != null) {
-                    val percent = (Calculator.fractionRemaining(found, client.world!!) * 100.0).toInt()
-                    val color = Util.getColor(percent)
-                    
-                    player.sendMessage(
-                        Text.literal(
-                            Util.formatTimePercent(
-                                found,
-                                ClientTextUtils.getTimeReportFormat(),
-                                ClientTextUtils.getTimeFormat(),
-                                client.world!!
-                            )
-                        ).withColor(color), false
-                    )
-                } else {
-                    player.sendMessage(
-                        Text.translatable("message.elytratime.no_elytra").formatted(Formatting.RED),
-                        false
-                    )
+            if (printTime.consumeClick()) {
+                val elytra = Util.findElytra(player)
+                if (elytra != null && ElytraTime.config.tooltipEnabled) {
+                    val message = Util.formatTimePercent(elytra, ElytraTime.config.timeReportFormat, ElytraTime.config.timeFormat, world)
+                    player.sendSystemMessage(Component.literal(message))
                 }
             }
 
-            if (openConfig.wasPressed()) {
-                client.setScreen(ConfigMenu.build(client.currentScreen))
+            if (openConfig.consumeClick()) {
+                client.screen = ConfigMenu.build(client.screen)
             }
+        }
+
+        // Register keybindings using Fabric API
+        KeyMappingHelper.registerKeyMapping(printTime)
+        KeyMappingHelper.registerKeyMapping(openConfig)
+    }
+
+    private fun registerHud() {
+        HudElementRegistry.attachElementBefore(
+            VanillaHudElements.HOTBAR,
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("elytratime", "hud")
+        ) { graphics, tickDelta ->
+            HudRenderer.onHudRender(graphics, tickDelta)
         }
     }
 
     private fun registerEvents() {
-        ItemTooltipCallback.EVENT.register { itemStack, context, type, lines ->
-            if (itemStack.isOf(Items.ELYTRA) && ElytraTime.config.tooltipEnabled) {
-                val world = MinecraftClient.getInstance().world ?: return@register
-                val percent = (Calculator.fractionRemaining(itemStack, world) * 100.0).toInt()
+        ItemTooltipCallback.EVENT.register { stack, context, tooltipFlag, lines ->
+            if (!ElytraTime.config.tooltipEnabled) return@register
+            val player = Minecraft.getInstance().player ?: return@register
+            val world = Minecraft.getInstance().level ?: return@register
+
+            val found = Util.findElytra(player)
+            if (found != null && stack.`is`(Items.ELYTRA)) {
+                val percent = (Calculator.fractionRemaining(found, world) * 100.0).toInt()
                 val color = Util.getColor(percent)
 
                 lines.add(
-                    1, Text.literal(
+                    Component.literal(
                         Util.formatTimePercent(
-                            itemStack,
-                            ClientTextUtils.getTooltipFormat(),
+                            found,
+                            ClientTextUtils.getTimeReportFormat(),
                             ClientTextUtils.getTimeFormat(),
                             world
                         )
                     ).withColor(color)
+                )
+            } else if (stack.`is`(Items.ELYTRA)) {
+                lines.add(
+                    Component.translatable("message.elytratime.no_elytra").withColor(net.minecraft.ChatFormatting.RED.color ?: 0xFF5555)
                 )
             }
         }

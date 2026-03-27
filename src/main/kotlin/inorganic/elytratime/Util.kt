@@ -1,13 +1,13 @@
 package inorganic.elytratime
 
-import net.minecraft.entity.EquipmentSlot
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
-import net.minecraft.world.World
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.level.Level
 
 object Util {
-    fun formatTimePercent(item: ItemStack, format: String, timeFormat: String, world: World): String {
+    fun formatTimePercent(item: ItemStack, format: String, timeFormat: String, world: Level): String {
         val timeLeft = formatTime(Calculator.timeRemaining(item, world), timeFormat)
         val percent = (Calculator.fractionRemaining(item, world) * 100.0).toInt()
 
@@ -28,36 +28,22 @@ object Util {
         val seconds = time % 60
         val secondsStr = if (ElytraTime.config.padSeconds) seconds.toString().padStart(2, '0') else seconds.toString()
 
-        if (minutes == 0 && format.contains("[M]") && format.contains("[S]")) {
-            val mIndex = format.indexOf("[M]")
-            val sIndex = format.indexOf("[S]")
-            if (mIndex < sIndex) {
-                return format.removeRange(mIndex, sIndex)
-                    .replace("[S]", secondsStr)
-            }
-        }
-
         return format
             .replace("[M]", minutes.toString())
             .replace("[S]", secondsStr)
     }
 
-    fun shouldWarn(item: ItemStack, world: World): Boolean {
-        if (!ElytraTime.config.alertThresholdEnabled) return false
-        val secondsRemaining = Calculator.timeRemaining(item, world)
-        return secondsRemaining <= ElytraTime.config.alertThresholdSeconds
+    fun shouldWarn(item: ItemStack, world: Level): Boolean =
+        Calculator.timeRemaining(item, world) <= ElytraTime.config.alertThresholdSeconds
+
+    fun getColor(percent: Int): Int = when {
+        percent >= ElytraTime.config.yellowThreshold -> ElytraTime.config.greenColor
+        percent >= ElytraTime.config.redThreshold -> ElytraTime.config.yellowColor
+        else -> ElytraTime.config.redColor
     }
 
-    fun getColor(percent: Int): Int {
-        return when {
-            percent > ElytraTime.config.yellowThreshold -> ElytraTime.config.greenColor
-            percent > ElytraTime.config.redThreshold -> ElytraTime.config.yellowColor
-            else -> ElytraTime.config.redColor
-        }
-    }
-
-    fun findElytra(player: PlayerEntity): ItemStack? {
-        val chestPlate = player.getEquippedStack(EquipmentSlot.CHEST)
-        return chestPlate.takeIf { it.isOf(Items.ELYTRA) }
+    fun findElytra(player: Player): ItemStack? {
+        val chestPlate = player.getItemBySlot(EquipmentSlot.CHEST)
+        return chestPlate.takeIf { it.`is`(Items.ELYTRA) }
     }
 }

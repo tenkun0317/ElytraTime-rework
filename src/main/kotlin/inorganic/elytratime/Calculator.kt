@@ -1,29 +1,32 @@
 package inorganic.elytratime
 
-import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.enchantment.Enchantments
-import net.minecraft.item.ItemStack
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.world.World
+import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.item.enchantment.Enchantments
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
 
 object Calculator {
-    fun timeRemaining(item: ItemStack, world: World): Int {
+    fun timeRemaining(item: ItemStack, world: Level): Int {
         val multiplier = getUnbreakingMultiplier(item, world)
-        return (item.maxDamage - item.damage) * multiplier - 1
+        return (item.maxDamage - item.damageValue) * multiplier - 1
     }
 
-    fun fractionRemaining(item: ItemStack, world: World): Float {
+    fun fractionRemaining(item: ItemStack, world: Level): Float {
         val multiplier = getUnbreakingMultiplier(item, world)
         val totalTime = item.maxDamage * multiplier - 1
         if (totalTime <= 0) return 0f
 
-        val remaining = (item.maxDamage - item.damage) * multiplier - 1
+        val remaining = (item.maxDamage - item.damageValue) * multiplier - 1
         return remaining.coerceAtLeast(0).toFloat() / totalTime.toFloat()
     }
 
-    private fun getUnbreakingMultiplier(item: ItemStack, world: World): Int {
-        val registry = world.registryManager.getOrThrow(RegistryKeys.ENCHANTMENT)
-        val enchantment = registry.get(Enchantments.UNBREAKING) ?: return 1
-        return EnchantmentHelper.getLevel(registry.getEntry(enchantment), item) + 1
+    private fun getUnbreakingMultiplier(item: ItemStack, world: Level): Int {
+        val registry = world.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+        val holder = registry.get(Enchantments.UNBREAKING).orElse(null)
+        return if (holder != null) {
+            EnchantmentHelper.getItemEnchantmentLevel(holder, item) + 1
+        } else {
+            1
+        }
     }
 }

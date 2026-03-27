@@ -35,6 +35,7 @@ class Config {
     @JvmField var redColor = 0xFFFF5555.toInt()
     @JvmField var alertColor = 0xFFFF5555.toInt()
     @JvmField var hudEnabled = true
+    @JvmField var hudAlwaysShow = false
     @JvmField var hudAlignment = Alignment.LEFT
     @JvmField var hudScale = 1.0f
     @JvmField var hudX = 5

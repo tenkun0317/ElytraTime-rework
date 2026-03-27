@@ -1,173 +1,280 @@
 package inorganic.elytratime
 
-import me.shedaniel.clothconfig2.api.ConfigBuilder
-import me.shedaniel.clothconfig2.api.Requirement
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.text.Text
-import java.util.Optional
+import dev.isxander.yacl3.api.*
+import dev.isxander.yacl3.api.controller.*
+
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.network.chat.Component
+import kotlin.reflect.KMutableProperty0
 
 object ConfigMenu {
-    fun build(parent: Screen?): Screen = ConfigBuilder.create().apply {
-        setParentScreen(parent)
-        setTitle(Text.translatable("title.elytratime.config"))
-        setSavingRunnable { ElytraTime.config.saveToFile() }
+    fun build(parent: Screen?): Screen {
+        val config = ElytraTime.config
 
-        val general = getOrCreateCategory(Text.translatable("category.elytratime.general"))
-        val eb = entryBuilder()
+        return YetAnotherConfigLib.createBuilder()
+            .title(Component.translatable("title.elytratime.config"))
+            .save { config.saveToFile() }
 
-        val enableTooltipEntry = eb.startBooleanToggle(Text.translatable("option.elytratime.enable_tooltip"), ElytraTime.config.tooltipEnabled)
-            .setSaveConsumer { ElytraTime.config.tooltipEnabled = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.enabled"))
-            .setDefaultValue(true)
+            .category(ConfigCategory.createBuilder()
+                .name(Component.translatable("category.elytratime.general"))
+                .option(createBooleanOption(
+                    "option.elytratime.enable_tooltip",
+                    "tooltip.elytratime.enabled",
+                    config::tooltipEnabled,
+                    true
+                ))
+                .option(createBooleanOption(
+                    "option.elytratime.hud_enabled",
+                    "tooltip.elytratime.hud_enabled",
+                    config::hudEnabled,
+                    true
+                ))
+                .option(createBooleanOption(
+                    "option.elytratime.hud_always_show",
+                    "tooltip.elytratime.hud_always_show",
+                    config::hudAlwaysShow,
+                    false
+                ))
+                .option(createBooleanOption(
+                    "option.elytratime.pad_seconds",
+                    "tooltip.elytratime.pad_seconds",
+                    config::padSeconds,
+                    true
+                ))
+                .option(createBooleanOption(
+                    "option.elytratime.total_seconds_only",
+                    "tooltip.elytratime.total_seconds_only",
+                    config::totalSecondsOnly,
+                    false
+                ))
+                .option(createBooleanOption(
+                    "option.elytratime.use_same_format",
+                    "tooltip.elytratime.use_same_format",
+                    config::useSameFormatForHudAndTooltip,
+                    true
+                ))
+                .option(createStringOption(
+                    "option.elytratime.time_format",
+                    "tooltip.elytratime.time_format",
+                    config::timeFormat,
+                    "%02d:%02d"
+                ))
+                .option(createStringOption(
+                    "option.elytratime.time_report_format",
+                    "tooltip.elytratime.time_report_format",
+                    config::timeReportFormat,
+                    "Remaining: %s (%d%%)"
+                ))
+                .option(createStringOption(
+                    "option.elytratime.tooltip_format",
+                    "tooltip.elytratime.tooltip_format",
+                    config::tooltipFormat,
+                    "%s (%d%%)"
+                ))
+                .option(createStringOption(
+                    "option.elytratime.hud_format",
+                    "tooltip.elytratime.hud_format",
+                    config::hudFormat,
+                    "%s"
+                ))
+                .build()
+            )
+
+            .category(ConfigCategory.createBuilder()
+                .name(Component.translatable("category.elytratime.alerts"))
+                .option(createBooleanOption(
+                    "option.elytratime.alert_enabled",
+                    "tooltip.elytratime.alert_enabled",
+                    config::alertThresholdEnabled,
+                    true
+                ))
+                .option(createIntegerFieldOption(
+                    "option.elytratime.alert_threshold",
+                    "tooltip.elytratime.alert_threshold",
+                    config::alertThresholdSeconds,
+                    60
+                ))
+                .option(createAlertTypeOption(
+                    "option.elytratime.alert_type",
+                    "tooltip.elytratime.alert_type",
+                    config::alertType,
+                    Config.AlertType.ACTION_BAR
+                ))
+                .option(createColorOption(
+                    "option.elytratime.alert_color",
+                    "tooltip.elytratime.alert_color",
+                    config::alertColor,
+                    0xFFFF5555.toInt()
+                ))
+                .build()
+            )
+
+            .category(ConfigCategory.createBuilder()
+                .name(Component.translatable("category.elytratime.colors"))
+                .option(createIntegerFieldOption(
+                    "option.elytratime.yellow_threshold",
+                    "tooltip.elytratime.yellow_threshold",
+                    config::yellowThreshold,
+                    25
+                ))
+                .option(createIntegerFieldOption(
+                    "option.elytratime.red_threshold",
+                    "tooltip.elytratime.red_threshold",
+                    config::redThreshold,
+                    10
+                ))
+                .option(createColorOption(
+                    "option.elytratime.green_color",
+                    "tooltip.elytratime.green_color",
+                    config::greenColor,
+                    0xFF55FF55.toInt()
+                ))
+                .option(createColorOption(
+                    "option.elytratime.yellow_color",
+                    "tooltip.elytratime.yellow_color",
+                    config::yellowColor,
+                    0xFFFFFF55.toInt()
+                ))
+                .option(createColorOption(
+                    "option.elytratime.red_color",
+                    "tooltip.elytratime.red_color",
+                    config::redColor,
+                    0xFFFF5555.toInt()
+                ))
+                .build()
+            )
+
+            .category(ConfigCategory.createBuilder()
+                .name(Component.translatable("category.elytratime.hud"))
+                .option(createAlignmentOption(
+                    "option.elytratime.hud_alignment",
+                    "tooltip.elytratime.hud_alignment",
+                    config::hudAlignment,
+                    Config.Alignment.LEFT
+                ))
+                .option(createIntegerFieldOption(
+                    "option.elytratime.hud_x",
+                    "tooltip.elytratime.hud_x",
+                    config::hudX,
+                    5
+                ))
+                .option(createIntegerFieldOption(
+                    "option.elytratime.hud_y",
+                    "tooltip.elytratime.hud_y",
+                    config::hudY,
+                    5
+                ))
+                .build()
+            )
+
             .build()
-        general.addEntry(enableTooltipEntry)
+            .generateScreen(parent)
+    }
 
-        general.addEntry(eb.startStrField(Text.translatable("option.elytratime.tooltip_format"), ClientTextUtils.getTooltipFormat())
-            .setSaveConsumer { ElytraTime.config.tooltipFormat = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.tooltip_format"))
-            .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.tooltip_format"))
-            .setRequirement(Requirement.isTrue(enableTooltipEntry))
-            .build())
-
-        val useSameFormatEntry = eb.startBooleanToggle(Text.translatable("option.elytratime.use_same_format"), ElytraTime.config.useSameFormatForHudAndTooltip)
-            .setSaveConsumer { ElytraTime.config.useSameFormatForHudAndTooltip = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.use_same_format"))
-            .setDefaultValue(true)
+    private fun createBooleanOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<Boolean>,
+        defaultValue: Boolean
+    ): Option<Boolean> {
+        return Option.createBuilder<Boolean>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(defaultValue, { property.get() }, { property.set(it) })
+            .controller(TickBoxControllerBuilder::create)
             .build()
-        general.addEntry(useSameFormatEntry)
+    }
 
-        general.addEntry(eb.startStrField(Text.translatable("option.elytratime.hud_format"), ClientTextUtils.getHudFormat())
-            .setSaveConsumer { ElytraTime.config.hudFormat = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_format"))
-            .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.tooltip_format"))
-            .setRequirement(Requirement.isFalse(useSameFormatEntry))
-            .build())
-
-        general.addEntry(eb.startStrField(Text.translatable("option.elytratime.time_format"), ClientTextUtils.getTimeFormat())
-            .setSaveConsumer { ElytraTime.config.timeFormat = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.time_format"))
-            .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.time_format"))
-            .build())
-
-        general.addEntry(eb.startStrField(Text.translatable("option.elytratime.time_report_format"), ClientTextUtils.getTimeReportFormat())
-            .setSaveConsumer { ElytraTime.config.timeReportFormat = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.time_report_format"))
-            .setDefaultValue(ClientTextUtils.getValueFromKey("value.elytratime.time_report_format"))
-            .build())
-
-        general.addEntry(eb.startBooleanToggle(Text.translatable("option.elytratime.pad_seconds"), ElytraTime.config.padSeconds)
-            .setSaveConsumer { ElytraTime.config.padSeconds = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.pad_seconds"))
-            .setDefaultValue(true)
-            .build())
-
-        general.addEntry(eb.startBooleanToggle(Text.translatable("option.elytratime.total_seconds_only"), ElytraTime.config.totalSecondsOnly)
-            .setSaveConsumer { ElytraTime.config.totalSecondsOnly = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.total_seconds_only"))
-            .setDefaultValue(false)
-            .build())
-
-        val enableAlertEntry = eb.startBooleanToggle(Text.translatable("option.elytratime.alert_enabled"), ElytraTime.config.alertThresholdEnabled)
-            .setSaveConsumer { ElytraTime.config.alertThresholdEnabled = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.alert_enabled"))
-            .setDefaultValue(true)
+    private fun createStringOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<String>,
+        defaultValue: String
+    ): Option<String> {
+        return Option.createBuilder<String>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(defaultValue, { property.get() }, { property.set(it) })
+            .controller(StringControllerBuilder::create)
             .build()
-        general.addEntry(enableAlertEntry)
+    }
 
-        general.addEntry(eb.startIntField(Text.translatable("option.elytratime.alert_threshold_seconds"), ElytraTime.config.alertThresholdSeconds)
-            .setSaveConsumer { ElytraTime.config.alertThresholdSeconds = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.alert_threshold_seconds"))
-            .setDefaultValue(60)
-            .setRequirement(Requirement.isTrue(enableAlertEntry))
-            .build())
+    private fun createIntegerFieldOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<Int>,
+        defaultValue: Int
+    ): Option<Int> {
+        return Option.createBuilder<Int>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(defaultValue, { property.get() }, { property.set(it) })
+            .controller(IntegerFieldControllerBuilder::create)
+            .build()
+    }
 
-        general.addEntry(eb.startEnumSelector(Text.translatable("option.elytratime.alert_type"), Config.AlertType::class.java, ElytraTime.config.alertType)
-            .setSaveConsumer { ElytraTime.config.alertType = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.alert_type"))
-            .setDefaultValue(Config.AlertType.ACTION_BAR)
-            .setEnumNameProvider { Text.translatable("option.elytratime.alert_type." + it.name.lowercase()) }
-            .setRequirement(Requirement.isTrue(enableAlertEntry))
-            .build())
+    private fun createColorOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<Int>,
+        defaultValue: Int
+    ): Option<String> {
+        return Option.createBuilder<String>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(
+                String.format("#%08X", defaultValue),
+                { String.format("#%08X", property.get()) },
+                { value ->
+                    try {
+                        // Remove # if present and parse as hex
+                        val hex = if (value.startsWith("#")) value.substring(1) else value
+                        property.set(hex.toLong(16).toInt())
+                    } catch (e: Exception) {
+                        try {
+                            // Try parsing as decimal integer
+                            property.set(value.toInt())
+                        } catch (e2: Exception) {
+                            // If parsing fails, keep current value
+                        }
+                    }
+                }
+            )
+            .controller(StringControllerBuilder::create)
+            .build()
+    }
 
-        general.addEntry(eb.startIntSlider(Text.translatable("option.elytratime.yellow_threshold"), ElytraTime.config.yellowThreshold, 0, 100)
-            .setSaveConsumer { ElytraTime.config.yellowThreshold = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.yellow_threshold"))
-            .setDefaultValue(25)
-            .build())
-
-        general.addEntry(eb.startIntSlider(Text.translatable("option.elytratime.red_threshold"), ElytraTime.config.redThreshold, 0, 100)
-            .setSaveConsumer { ElytraTime.config.redThreshold = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.red_threshold"))
-            .setDefaultValue(10)
-            .build())
-
-        val colors = getOrCreateCategory(Text.translatable("category.elytratime.colors"))
-
-        colors.addEntry(eb.startAlphaColorField(Text.translatable("option.elytratime.green_color"), ElytraTime.config.greenColor)
-            .setSaveConsumer { ElytraTime.config.greenColor = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.green_color"))
-            .setDefaultValue(0xFF55FF55.toInt())
-            .build())
-
-        colors.addEntry(eb.startAlphaColorField(Text.translatable("option.elytratime.yellow_color"), ElytraTime.config.yellowColor)
-            .setSaveConsumer { ElytraTime.config.yellowColor = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.yellow_color"))
-            .setDefaultValue(0xFFFFFF55.toInt())
-            .build())
-
-        colors.addEntry(eb.startAlphaColorField(Text.translatable("option.elytratime.red_color"), ElytraTime.config.redColor)
-            .setSaveConsumer { ElytraTime.config.redColor = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.red_color"))
-            .setDefaultValue(0xFFFF5555.toInt())
-            .build())
-
-        colors.addEntry(eb.startAlphaColorField(Text.translatable("option.elytratime.alert_color"), ElytraTime.config.alertColor)
-            .setSaveConsumer { ElytraTime.config.alertColor = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.alert_color"))
-            .setDefaultValue(0xFFFF5555.toInt())
-            .build())
-
-        val hud = getOrCreateCategory(Text.translatable("category.elytratime.hud"))
-        
-        hud.addEntry(eb.startBooleanToggle(Text.translatable("option.elytratime.hud_enabled"), ElytraTime.config.hudEnabled)
-            .setSaveConsumer { ElytraTime.config.hudEnabled = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_enabled"))
-            .setDefaultValue(true)
-            .build())
-
-        hud.addEntry(eb.startEnumSelector(Text.translatable("option.elytratime.hud_alignment"), Config.Alignment::class.java, ElytraTime.config.hudAlignment)
-            .setSaveConsumer { ElytraTime.config.hudAlignment = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_alignment"))
-            .setDefaultValue(Config.Alignment.LEFT)
-            .setEnumNameProvider { Text.translatable("option.elytratime.alignment." + it.name.lowercase()) }
-            .build())
-
-        hud.addEntry(eb.startFloatField(Text.translatable("option.elytratime.hud_scale"), ElytraTime.config.hudScale)
-            .setSaveConsumer { ElytraTime.config.hudScale = it }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_scale"))
-            .setDefaultValue(1.0f)
-            .setMin(0.1f)
-            .setMax(10.0f)
-            .build())
-
-        hud.addEntry(eb.startIntField(Text.translatable("option.elytratime.hud_x"), ElytraTime.config.hudX)
-            .setSaveConsumer { ElytraTime.config.hudX = it }
-            .setErrorSupplier {
-                ElytraTime.config.hudX = it
-                Optional.empty()
+    private fun createAlertTypeOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<Config.AlertType>,
+        defaultValue: Config.AlertType
+    ): Option<Config.AlertType> {
+        return Option.createBuilder<Config.AlertType>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(defaultValue, { property.get() }, { property.set(it) })
+            .controller { opt ->
+                EnumControllerBuilder.create(opt)
+                    .enumClass(Config.AlertType::class.java)
             }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_x"))
-            .setDefaultValue(5)
-            .build())
+            .build()
+    }
 
-        hud.addEntry(eb.startIntField(Text.translatable("option.elytratime.hud_y"), ElytraTime.config.hudY)
-            .setSaveConsumer { ElytraTime.config.hudY = it }
-            .setErrorSupplier {
-                ElytraTime.config.hudY = it
-                Optional.empty()
+    private fun createAlignmentOption(
+        nameKey: String,
+        descriptionKey: String,
+        property: KMutableProperty0<Config.Alignment>,
+        defaultValue: Config.Alignment
+    ): Option<Config.Alignment> {
+        return Option.createBuilder<Config.Alignment>()
+            .name(Component.translatable(nameKey))
+            .description(OptionDescription.of(Component.translatable(descriptionKey)))
+            .binding(defaultValue, { property.get() }, { property.set(it) })
+            .controller { opt ->
+                EnumControllerBuilder.create(opt)
+                    .enumClass(Config.Alignment::class.java)
             }
-            .setTooltip(Text.translatable("tooltip.elytratime.hud_y"))
-            .setDefaultValue(5)
-            .build())
-    }.build()
+            .build()
+    }
 }
